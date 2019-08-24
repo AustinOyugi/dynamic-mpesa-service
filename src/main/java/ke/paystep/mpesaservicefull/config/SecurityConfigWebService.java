@@ -9,9 +9,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -24,7 +26,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  */
 
 @Configuration
-@Order(1)
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(
         securedEnabled = true,
@@ -33,6 +34,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 )
 public class SecurityConfigWebService extends WebSecurityConfigurerAdapter
 {
+    private static final String[] AUTH_LIST_SWAGGER = {
+            // -- swagger ui
+            "**/swagger-resources/**",
+            "/swagger-ui.html#/",
+            "/v2/api-docs",
+            "/webjars/**"
+    };
+
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
@@ -52,9 +61,9 @@ public class SecurityConfigWebService extends WebSecurityConfigurerAdapter
                 .passwordEncoder(passwordEncoder());
     }
 
+    @Bean(BeanIds.AUTHENTICATION_MANAGER)
     @Override
-    @Bean
-    protected AuthenticationManager authenticationManager() throws Exception {
+    public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
 
@@ -62,6 +71,12 @@ public class SecurityConfigWebService extends WebSecurityConfigurerAdapter
     PasswordEncoder passwordEncoder()
     {
         return  new BCryptPasswordEncoder();
+    }
+
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().antMatchers(AUTH_LIST_SWAGGER);
+        web.ignoring().mvcMatchers(AUTH_LIST_SWAGGER);
     }
 
     @Override

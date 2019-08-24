@@ -1,5 +1,8 @@
 package ke.paystep.mpesaservicefull.controller;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponses;
 import ke.paystep.mpesaservicefull.exception.AppException;
 import ke.paystep.mpesaservicefull.model.Role;
 import ke.paystep.mpesaservicefull.model.RoleName;
@@ -8,6 +11,8 @@ import ke.paystep.mpesaservicefull.payload.*;
 import ke.paystep.mpesaservicefull.repository.RoleRepository;
 import ke.paystep.mpesaservicefull.repository.UserRepository;
 import ke.paystep.mpesaservicefull.security.JwtTokenProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +38,8 @@ import java.util.Collections;
 @RequestMapping("/api/auth")
 public class AuthController
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
+
     private final AuthenticationManager authenticationManager;
 
     private final UserRepository userRepository;
@@ -52,8 +59,15 @@ public class AuthController
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
+    @ApiOperation(value = "Used to generate jwt token used to enable access  to other resources ")
+    @ApiResponses(value = {
+            @io.swagger.annotations.ApiResponse(code = 200, message = "Successfully Generated the request"),
+            @io.swagger.annotations.ApiResponse(code = 500, message = "Internal Server Error"),
+            @io.swagger.annotations.ApiResponse(code = 400, message = "Check your details, the server failed to process your request"),
+            @io.swagger.annotations.ApiResponse(code = 0, message = "Timed Out, try again")
+    })
     @PostMapping("/getToken")
-    public ResponseEntity<?> getAccessToken(@Valid @RequestBody AuthenticationRequest authRequest)
+    public ResponseEntity<?> getAccessToken(@ApiParam(value = "Authentication Object") @Valid @RequestBody AuthenticationRequest authRequest)
     {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -65,20 +79,19 @@ public class AuthController
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String jwt = jwtTokenProvider.generateToken(authentication);
-
-        return ResponseEntity.status(Integer.parseInt(ApiResponseStatus.SUCCESS.getResponseStatus())).body(new JwtAuthenticationResponse(jwt));
+        return ResponseEntity.status(200).body(new JwtAuthenticationResponse(jwt));
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest)
     {
-        if (userRepository.existsByUsername(signUpRequest.getUserName()))
+        if (userRepository.existsByUserName(signUpRequest.getUserName()))
         {
             return new ResponseEntity<>(new ApiResponse(false, "Username is already taken!"),
                     HttpStatus.BAD_REQUEST);
         }
 
-        if (userRepository.existsByEmail(signUpRequest.getEmailAddress()))
+        if (userRepository.existsByEmailAddress(signUpRequest.getEmailAddress()))
         {
             return new ResponseEntity<>(new ApiResponse(false,"Email Address already in use!"),
                     HttpStatus.BAD_REQUEST);

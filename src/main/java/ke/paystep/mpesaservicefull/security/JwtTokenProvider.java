@@ -22,7 +22,7 @@ public class JwtTokenProvider
     private String jwtSecret;
 
     @Value("${app.jwtExpirationInMs}")
-    private String jwtExpirationInMs;
+    private int jwtExpirationInMs;
 
     public String generateToken(Authentication authentication)
     {
@@ -35,9 +35,8 @@ public class JwtTokenProvider
                 .setSubject(Long.toString(userPrincipal.getId()))
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
-                .signWith(SignatureAlgorithm.ES512, jwtSecret)
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
-
     }
 
     public Long getUserIdFromJwt(String token)
