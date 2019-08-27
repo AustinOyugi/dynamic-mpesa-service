@@ -24,7 +24,6 @@ public class MpesaAuthentication
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MpesaAuthentication.class);
 
-//    @EventListener(ApplicationReadyEvent.class)
     private String authenticate() throws IOException
     {
         String access_token = consumer_key + ":" + consumer_secret;

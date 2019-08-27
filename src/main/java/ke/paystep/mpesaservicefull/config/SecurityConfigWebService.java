@@ -6,7 +6,6 @@ import ke.paystep.mpesaservicefull.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
@@ -108,7 +107,7 @@ public class SecurityConfigWebService extends WebSecurityConfigurerAdapter
                 .permitAll()
                 .antMatchers("/api/user/checkUsernameAvailability", "/api/user/checkEmailAvailability")
                 .permitAll()
-                .antMatchers(HttpMethod.GET,"/api/mpesa/**","/api/users/**" )
+                .antMatchers(HttpMethod.GET,"/api/mpesa/**","/api/users/**" ,"/v1/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated();
