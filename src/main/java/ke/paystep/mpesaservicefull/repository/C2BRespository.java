@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface C2BRespository extends CrudRepository<C2BModel, Long>
 {
-    @Query("SELECT COUNT(u.id) from C2B u where u.user.id = :userId")
+    @Query("SELECT COUNT(u.id) from C2BModel u where u.user.id = :userId")
     long countByUserId(@Param("userId") Long userId);
 }

@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface B2CRepository extends CrudRepository<B2CModel ,Long>
 {
-    @Query("SELECT COUNT(u.id) from B2C u where u.user.id = :userId")
+    @Query("SELECT COUNT(u.id) from B2CModel u where u.user.id = :userId")
     long countByUserId(@Param("userId") Long userId);
 }

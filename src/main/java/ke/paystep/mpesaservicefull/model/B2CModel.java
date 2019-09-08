@@ -13,7 +13,7 @@ import javax.validation.constraints.Size;
                 "ConversationID"
         }),
         @UniqueConstraint(columnNames = {
-                "OriginatorCoversationID"
+                "OriginatorConversationID"
         })
 })
 public class B2CModel extends DateAudit

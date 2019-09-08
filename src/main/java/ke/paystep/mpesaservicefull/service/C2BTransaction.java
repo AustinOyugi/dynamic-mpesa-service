@@ -26,7 +26,7 @@ public class C2BTransaction {
     @Value("${app.mode}")
     private String appMode;
 
-    @Value("${business_short_code}")
+    @Value("${mpesa.business_short_code}")
     private String business_short_code;
 
     @Value("${mpesa.pass_key}")

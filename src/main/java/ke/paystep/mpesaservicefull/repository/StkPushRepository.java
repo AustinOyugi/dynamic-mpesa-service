@@ -13,6 +13,6 @@ public interface StkPushRepository extends CrudRepository<StkPushModel, Long>
 {
     Optional<StkPushModel> getByCheckoutRequestID(String checkoutRequestID);
 
-    @Query("SELECT COUNT(u.id) from STK_Push u where u.user.id = :userId")
+    @Query("SELECT COUNT(u.id) from StkPushModel u where u.user.id = :userId")
     long countByUserId(@Param("userId") Long userId);
 }

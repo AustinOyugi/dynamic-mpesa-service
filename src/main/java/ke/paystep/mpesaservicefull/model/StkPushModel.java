@@ -1,6 +1,7 @@
 package ke.paystep.mpesaservicefull.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import ke.paystep.mpesaservicefull.model.audit.DateAudit;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -11,13 +12,12 @@ import javax.validation.constraints.NotNull;
                 "CheckoutRequestID"
         })
 })
-public class StkPushModel
+public class StkPushModel extends DateAudit
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
     @NotNull
     private String merchantRequestID;
 
@@ -37,7 +37,7 @@ public class StkPushModel
     private short transactionComplete;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id", nullable = false)
+    @JoinColumn(name = "id", insertable = false, updatable = false)
     @JsonIgnore
     private User user;
 
