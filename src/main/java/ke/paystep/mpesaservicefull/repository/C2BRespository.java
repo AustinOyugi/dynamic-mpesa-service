@@ -1,9 +1,14 @@
 package ke.paystep.mpesaservicefull.repository;
 
 import ke.paystep.mpesaservicefull.model.C2BModel;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface C2BRespository extends CrudRepository<C2BModel, Long> {
+public interface C2BRespository extends CrudRepository<C2BModel, Long>
+{
+    @Query("SELECT COUNT(u.id) from C2B u where u.user.id = :userId")
+    long countByUserId(@Param("userId") Long userId);
 }

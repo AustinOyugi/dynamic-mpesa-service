@@ -86,33 +86,46 @@ public class B2CController
             return ResponseEntity.status(500).body(new ApiResponse(false,"An Error Occurred Try Again"));
         }
 
-        while (true)
-        {
-            if (transactionComplete)
-            {
-                if (result.containsKey(200))
-                {
-                    B2CModel b2CModel = new B2CModel();
-                    b2CModel.setAmount(b2cRequest.getAmount());
-                    b2CModel.setCommandID(String.valueOf(b2cRequest.getCommandID()));
-                    b2CModel.setPhoneNumber(b2cRequest.getPhoneNumber());
-                    b2CModel.setRemarks(b2cRequest.getRemarks());
-                    b2CModel.setTransactionComplete((short) 1);
-                    b2CModel.setConversationID(jsonObject.getString("ConversationId"));
-                    b2CModel.setOriginatorCoversationID(jsonObject.getString("OriginatorConversationId"));
-                    b2CModel.setUser(user);
+        B2CModel b2CModel = new B2CModel();
+        b2CModel.setAmount(b2cRequest.getAmount());
+        b2CModel.setCommandID(String.valueOf(b2cRequest.getCommandID()));
+        b2CModel.setPhoneNumber(b2cRequest.getPhoneNumber());
+        b2CModel.setRemarks(b2cRequest.getRemarks());
+        b2CModel.setTransactionComplete((short) 0);
+        b2CModel.setConversationID(jsonObject.getString("ConversationId"));
+        b2CModel.setOriginatorConversationID(jsonObject.getString("OriginatorConversationId"));
+        b2CModel.setUser(user);
 
-                    b2CRepository.save(b2CModel);
-                    transactionComplete=false;
-                    return ResponseEntity.status(200).body(new ApiResponse(true,result.get(200)));
-                }else {
-                    transactionComplete = false;
-                    LOGGER.error("Transaction Failed {}", result.get(500));
-                    return ResponseEntity.status(500).body(new ApiResponse(false,
-                            "Transaction Failed -> "+result.get(500)));
-                }
-            }
-        }
+        b2CRepository.save(b2CModel);
+        return ResponseEntity.status(200).body(jsonObject.toMap());
+
+//        while (true)
+//        {
+//            if (transactionComplete)
+//            {
+//                if (result.containsKey(200))
+//                {
+//                    B2CModel b2CModel = new B2CModel();
+//                    b2CModel.setAmount(b2cRequest.getAmount());
+//                    b2CModel.setCommandID(String.valueOf(b2cRequest.getCommandID()));
+//                    b2CModel.setPhoneNumber(b2cRequest.getPhoneNumber());
+//                    b2CModel.setRemarks(b2cRequest.getRemarks());
+//                    b2CModel.setTransactionComplete((short) 1);
+//                    b2CModel.setConversationID(jsonObject.getString("ConversationId"));
+//                    b2CModel.setOriginatorConversationID(jsonObject.getString("OriginatorConversationId"));
+//                    b2CModel.setUser(user);
+//
+//                    b2CRepository.save(b2CModel);
+//                    transactionComplete=false;
+//                    return ResponseEntity.status(200).body(new ApiResponse(true,result.get(200)));
+//                }else {
+//                    transactionComplete = false;
+//                    LOGGER.error("Transaction Failed {}", result.get(500));
+//                    return ResponseEntity.status(500).body(new ApiResponse(false,
+//                            "Transaction Failed -> "+result.get(500)));
+//                }
+//            }
+//        }
     }
 
     @PostMapping("/result")

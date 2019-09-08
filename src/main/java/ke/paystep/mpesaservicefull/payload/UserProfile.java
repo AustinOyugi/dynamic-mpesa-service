@@ -1,22 +1,20 @@
-package com.example.polls.payload;
+package ke.paystep.mpesaservicefull.payload;
 
 import java.time.Instant;
 
 public class UserProfile {
     private Long id;
     private String username;
-    private String name;
+    private String email;
     private Instant joinedAt;
-    private Long pollCount;
-    private Long voteCount;
+    private Long numOfTransactions;
 
-    public UserProfile(Long id, String username, String name, Instant joinedAt, Long pollCount, Long voteCount) {
+    public UserProfile(Long id, String username, String email, Instant joinedAt, Long numOfTransactions) {
         this.id = id;
         this.username = username;
-        this.name = name;
+        this.email = email;
         this.joinedAt = joinedAt;
-        this.pollCount = pollCount;
-        this.voteCount = voteCount;
+        this.numOfTransactions = numOfTransactions;
     }
 
     public Long getId() {
@@ -35,12 +33,12 @@ public class UserProfile {
         this.username = username;
     }
 
-    public String getName() {
-        return name;
+    public String getEmail() {
+        return email;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Instant getJoinedAt() {
@@ -51,19 +49,11 @@ public class UserProfile {
         this.joinedAt = joinedAt;
     }
 
-    public Long getPollCount() {
-        return pollCount;
+    public Long getNumOfTransactions() {
+        return numOfTransactions;
     }
 
-    public void setPollCount(Long pollCount) {
-        this.pollCount = pollCount;
-    }
-
-    public Long getVoteCount() {
-        return voteCount;
-    }
-
-    public void setVoteCount(Long voteCount) {
-        this.voteCount = voteCount;
+    public void setNumOfTransactions(Long numOfTransactions) {
+        this.numOfTransactions = numOfTransactions;
     }
 }

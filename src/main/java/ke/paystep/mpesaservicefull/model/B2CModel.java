@@ -27,6 +27,7 @@ public class B2CModel extends DateAudit
     @JsonIgnore
     private User user;
 
+    @NotNull
     private short transactionComplete;
 
     @NotNull
@@ -46,7 +47,7 @@ public class B2CModel extends DateAudit
     private String ConversationID;
 
     @NotNull
-    private String OriginatorCoversationID;
+    private String OriginatorConversationID;
 
     public String getConversationID() {
         return ConversationID;
@@ -56,12 +57,12 @@ public class B2CModel extends DateAudit
         ConversationID = conversationID;
     }
 
-    public String getOriginatorCoversationID() {
-        return OriginatorCoversationID;
+    public String getOriginatorConversationID() {
+        return OriginatorConversationID;
     }
 
-    public void setOriginatorCoversationID(String originatorCoversationID) {
-        OriginatorCoversationID = originatorCoversationID;
+    public void setOriginatorConversationID(String originatorConversationID) {
+        OriginatorConversationID = originatorConversationID;
     }
 
     public Long getRequestId() {

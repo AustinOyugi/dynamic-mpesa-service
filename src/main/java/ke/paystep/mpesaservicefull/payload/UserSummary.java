@@ -1,4 +1,4 @@
-package com.example.polls.payload;
+package ke.paystep.mpesaservicefull.payload;
 
 public class UserSummary {
     private Long id;
