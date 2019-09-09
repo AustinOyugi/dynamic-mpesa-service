@@ -109,6 +109,7 @@ public class C2BController
         try {
             jsonObject = c2BTransaction.payment(stkPushRequest.getAmount(),stkPushRequest.getPhoneNumber(),
                     stkPushRequest.getAccountName(),stkPushRequest.getTransactionDesc());
+            
         } catch (IOException e) {
             LOGGER.error("Transaction Failed {}", e.getLocalizedMessage());
             return ResponseEntity.status(500).body(new ApiResponse(false,"Internal Server Error"));
@@ -116,6 +117,9 @@ public class C2BController
 
         assert jsonObject != null;
         int responseCode = Integer.parseInt(jsonObject.getString("ResponseCode"));
+        
+        LOGGER.info(jsonObject.toString());
+        
         if (responseCode != 0)
         {
             return ResponseEntity.status(500).body(new ApiResponse(false,"An Error Occurred Try Again"));
