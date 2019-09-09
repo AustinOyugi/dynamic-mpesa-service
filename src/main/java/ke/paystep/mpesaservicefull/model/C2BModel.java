@@ -43,7 +43,7 @@ public class C2BModel extends DateAudit
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id", nullable = false)
     @JsonIgnore
-    private User user;
+    private Users user;
 
     private short transactionComplete;
 
@@ -114,11 +114,11 @@ public class C2BModel extends DateAudit
         this.transactionComplete = transactionComplete;
     }
 
-    public User getUser() {
+    public Users getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(Users user) {
         this.user = user;
     }
 }

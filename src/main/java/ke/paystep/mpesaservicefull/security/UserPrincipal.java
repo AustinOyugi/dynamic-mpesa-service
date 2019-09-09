@@ -1,7 +1,7 @@
 package ke.paystep.mpesaservicefull.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import ke.paystep.mpesaservicefull.model.User;
+import ke.paystep.mpesaservicefull.model.Users;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,7 +32,7 @@ public class UserPrincipal implements UserDetails {
         this.authorities = authorities;
     }
 
-    public static UserPrincipal create(User user)
+    public static UserPrincipal create(Users user)
     {
         List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))

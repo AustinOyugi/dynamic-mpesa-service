@@ -25,7 +25,7 @@ public class B2CModel extends DateAudit
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id", nullable = false)
     @JsonIgnore
-    private User user;
+    private Users user;
 
     @NotNull
     private short transactionComplete;
@@ -73,11 +73,11 @@ public class B2CModel extends DateAudit
         this.requestId = requestId;
     }
 
-    public User getUser() {
+    public Users getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(Users user) {
         this.user = user;
     }
 

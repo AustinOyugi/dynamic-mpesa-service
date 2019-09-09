@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiResponses;
 import ke.paystep.mpesaservicefull.exception.AppException;
 import ke.paystep.mpesaservicefull.model.Role;
 import ke.paystep.mpesaservicefull.model.RoleName;
-import ke.paystep.mpesaservicefull.model.User;
+import ke.paystep.mpesaservicefull.model.Users;
 import ke.paystep.mpesaservicefull.payload.*;
 import ke.paystep.mpesaservicefull.repository.RoleRepository;
 import ke.paystep.mpesaservicefull.repository.UserRepository;
@@ -97,7 +97,7 @@ public class AuthController
                     HttpStatus.BAD_REQUEST);
         }
 
-        User user = new User(signUpRequest.getFirstName(), signUpRequest.getLastName(),
+        Users user = new Users(signUpRequest.getFirstName(), signUpRequest.getLastName(),
                 signUpRequest.getUserName(),signUpRequest.getAccountType(), signUpRequest.getEmailAddress(),
                 signUpRequest.getCompanyName(),signUpRequest.getCountry(),signUpRequest.getMobileNumber(),
                 signUpRequest.getPassword(), (short) 1);
@@ -109,7 +109,7 @@ public class AuthController
 
         user.setRoles(Collections.singleton(userRole));
 
-        User result = userRepository.save(user);
+        Users result = userRepository.save(user);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath().path("/users/{username}")

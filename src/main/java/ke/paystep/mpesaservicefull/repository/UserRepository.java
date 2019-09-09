@@ -1,6 +1,6 @@
 package ke.paystep.mpesaservicefull.repository;
 
-import ke.paystep.mpesaservicefull.model.User;
+import ke.paystep.mpesaservicefull.model.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -14,13 +14,12 @@ import java.util.Optional;
  */
 
 @Repository
-@Transactional
-public interface UserRepository extends JpaRepository<User, Long>
+public interface UserRepository extends JpaRepository<Users, Long>
 {
-    Optional<User> findByEmailAddress(String email);
-    Optional<User> findByUserNameOrEmailAddress(String username, String email);
-    List<User> findByIdIn(List<Long> userIds);
-    Optional<User> findByUserName(String username);
+    Optional<Users> findByEmailAddress(String email);
+    Optional<Users> findByUserNameOrEmailAddress(String username, String email);
+    List<Users> findByIdIn(List<Long> userIds);
+    Optional<Users> findByUserName(String username);
     Boolean existsByUserName(String username);
     Boolean existsByEmailAddress(String email);
 }

@@ -2,7 +2,7 @@ package ke.paystep.mpesaservicefull.controller;
 
 
 import ke.paystep.mpesaservicefull.exception.ResourceNotFoundException;
-import ke.paystep.mpesaservicefull.model.User;
+import ke.paystep.mpesaservicefull.model.Users;
 import ke.paystep.mpesaservicefull.payload.UserIdentityAvailability;
 import ke.paystep.mpesaservicefull.payload.UserProfile;
 import ke.paystep.mpesaservicefull.payload.UserSummary;
@@ -62,7 +62,7 @@ public class UserController {
 
     @GetMapping("/users/{username}")
     public UserProfile getUserProfile(@PathVariable(value = "username") String username) {
-        User user = userRepository.findByUserName(username)
+        Users user = userRepository.findByUserName(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
 
         long numOfTransactions = b2CRepository.countByUserId(user.getId()) + c2BRespository.countByUserId(user.getId())+

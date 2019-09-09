@@ -14,7 +14,7 @@ import java.util.Set;
  * Created by Austin Oyugi on 17/8/2019.
  */
 @Entity
-@Table(uniqueConstraints = {
+@Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = {
                 "userName"
         }),
@@ -22,7 +22,7 @@ import java.util.Set;
                 "emailAddress"
         })
 })
-public class User extends DateAudit
+public class Users extends DateAudit
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -84,11 +84,11 @@ public class User extends DateAudit
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-    public User(){
+    public Users(){
 
     }
 
-    public User(@NotBlank @Size(max = 20) String firstName, @NotBlank @Size(max = 20) String lastName, @NotBlank @Size(max = 15) String userName, @NotBlank @Size(max = 20) String accountType, @NotBlank @Email @Size(max = 40) String emailAddress, @NotBlank @Size(max = 40) String companyName, @NotBlank @Size(max = 20) String country, @NotBlank @Size(max = 15) String mobileNumber, @NotBlank @Size(max = 100) String password, short accountActivated) {
+    public Users(@NotBlank @Size(max = 20) String firstName, @NotBlank @Size(max = 20) String lastName, @NotBlank @Size(max = 15) String userName, @NotBlank @Size(max = 20) String accountType, @NotBlank @Email @Size(max = 40) String emailAddress, @NotBlank @Size(max = 40) String companyName, @NotBlank @Size(max = 20) String country, @NotBlank @Size(max = 15) String mobileNumber, @NotBlank @Size(max = 100) String password, short accountActivated) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.userName = userName;

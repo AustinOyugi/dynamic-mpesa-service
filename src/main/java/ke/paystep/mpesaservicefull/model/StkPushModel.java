@@ -39,7 +39,7 @@ public class StkPushModel extends DateAudit
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id", insertable = false, updatable = false)
     @JsonIgnore
-    private User user;
+    private Users user;
 
     public Long getId() {
         return id;
@@ -81,11 +81,11 @@ public class StkPushModel extends DateAudit
         this.phoneNumber = phoneNumber;
     }
 
-    public User getUser() {
+    public Users getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(Users user) {
         this.user = user;
     }
 

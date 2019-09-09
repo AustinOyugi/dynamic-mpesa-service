@@ -6,7 +6,7 @@ import ke.paystep.mpesaservicefull.exception.ResourceNotFoundException;
 import ke.paystep.mpesaservicefull.helpers.UrlValidator;
 import ke.paystep.mpesaservicefull.model.C2BModel;
 import ke.paystep.mpesaservicefull.model.StkPushModel;
-import ke.paystep.mpesaservicefull.model.User;
+import ke.paystep.mpesaservicefull.model.Users;
 import ke.paystep.mpesaservicefull.payload.ApiResponse;
 import ke.paystep.mpesaservicefull.payload.C2BRequest;
 import ke.paystep.mpesaservicefull.payload.StkPushQueryRequest;
@@ -212,7 +212,7 @@ public class C2BController
     @PostMapping("/initiate")
     public ResponseEntity<?> initiate(@CurrentUser UserPrincipal currentUser, @Valid @RequestBody C2BRequest c2BRequest)
     {
-        User user = userRepository.findById(currentUser.getId()).orElse(null);
+        Users user = userRepository.findById(currentUser.getId()).orElse(null);
         if (user == null)
         {
             return ResponseEntity.status(404).body(new ResourceNotFoundException("User", "Id", currentUser.getId()));

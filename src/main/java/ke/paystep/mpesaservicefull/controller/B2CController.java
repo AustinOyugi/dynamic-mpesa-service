@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponses;
 import ke.paystep.mpesaservicefull.exception.ResourceNotFoundException;
 import ke.paystep.mpesaservicefull.model.B2CModel;
-import ke.paystep.mpesaservicefull.model.User;
+import ke.paystep.mpesaservicefull.model.Users;
 import ke.paystep.mpesaservicefull.payload.ApiResponse;
 import ke.paystep.mpesaservicefull.payload.B2CRequest;
 import ke.paystep.mpesaservicefull.repository.B2CRepository;
@@ -63,7 +63,7 @@ public class B2CController
     @PostMapping("/initiate")
     public ResponseEntity<?> initiate(@CurrentUser UserPrincipal currentUser, @Valid @RequestBody B2CRequest b2cRequest)
     {
-        User user = userRepository.findById(currentUser.getId()).orElse(null);
+        Users user = userRepository.findById(currentUser.getId()).orElse(null);
         if (user == null)
         {
             return ResponseEntity.status(404).body(new ResourceNotFoundException("User", "Id", currentUser.getId()));
