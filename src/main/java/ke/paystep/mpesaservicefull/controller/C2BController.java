@@ -116,9 +116,8 @@ public class C2BController
         }
 
         assert jsonObject != null;
-        int responseCode = Integer.parseInt(jsonObject.getString("ResponseCode"));
-        
         LOGGER.info(jsonObject.toString());
+        int responseCode = Integer.parseInt(jsonObject.getString("ResponseCode"));
         
         if (responseCode != 0)
         {
