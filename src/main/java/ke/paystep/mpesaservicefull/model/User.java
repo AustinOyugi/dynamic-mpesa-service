@@ -14,7 +14,7 @@ import java.util.Set;
  * Created by Austin Oyugi on 17/8/2019.
  */
 @Entity
-@Table(name = "User", uniqueConstraints = {
+@Table(name = "user", uniqueConstraints = {
         @UniqueConstraint(columnNames = {
                 "userName"
         }),
