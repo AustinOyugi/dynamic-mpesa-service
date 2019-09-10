@@ -116,12 +116,21 @@ public class C2BController
         }
 
         assert jsonObject != null;
-        LOGGER.info(jsonObject.toString());
-        int responseCode = Integer.parseInt(jsonObject.getString("ResponseCode"));
+        int responseCode;
+        
+        try{
+            responseCode = Integer.parseInt(jsonObject.getString("ResponseCode"));
+            
+        }catch(Exception e)
+        {
+            LOGGER.info(jsonObject.toString());
+            LOGGER.error(e.getLocalizedMessage());
+            return ResponseEntity.status(500).body(new ApiResponse(false,"An Error Occurred, Try Again"));
+        }
         
         if (responseCode != 0)
         {
-            return ResponseEntity.status(500).body(new ApiResponse(false,"An Error Occurred Try Again"));
+            return ResponseEntity.status(500).body(new ApiResponse(false,"An Error Occurred, Try Again"));
         }
 
         StkPushModel stkPushModel = new StkPushModel();
