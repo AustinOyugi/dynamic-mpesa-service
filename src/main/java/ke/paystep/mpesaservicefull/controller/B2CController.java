@@ -1,12 +1,14 @@
 package ke.paystep.mpesaservicefull.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponses;
 import ke.paystep.mpesaservicefull.exception.ResourceNotFoundException;
 import ke.paystep.mpesaservicefull.model.B2CModel;
 import ke.paystep.mpesaservicefull.model.Users;
-import ke.paystep.mpesaservicefull.payload.ApiResponse;
-import ke.paystep.mpesaservicefull.payload.B2CRequest;
+import ke.paystep.mpesaservicefull.payload.*;
 import ke.paystep.mpesaservicefull.repository.B2CRepository;
 import ke.paystep.mpesaservicefull.repository.UserRepository;
 import ke.paystep.mpesaservicefull.security.CurrentUser;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -41,9 +44,6 @@ public class B2CController
     private final B2CTransaction b2CTransaction;
 
     private final B2CRepository b2CRepository;
-
-    private boolean transactionComplete = false;
-    private Map<Integer, String> result;
 
     @Autowired
     public B2CController(UserRepository userRepository, B2CTransaction b2CTransaction, B2CRepository b2CRepository) {
@@ -63,7 +63,7 @@ public class B2CController
     @PostMapping("/initiate")
     public ResponseEntity<?> initiate(@CurrentUser UserPrincipal currentUser, @Valid @RequestBody B2CRequest b2cRequest)
     {
-        Users user = userRepository.findById(currentUser.getId()).orElse(null);
+        Users user = userRepository.findById(Long.parseLong(b2cRequest.getTransactionId())).orElse(null);
         if (user == null)
         {
             return ResponseEntity.status(404).body(new ResourceNotFoundException("User", "Id", currentUser.getId()));
@@ -74,16 +74,33 @@ public class B2CController
         try {
             jsonObject = b2CTransaction.request(String.valueOf(b2cRequest.getCommandID()), b2cRequest.getAmount(),
                     b2cRequest.getPhoneNumber(),b2cRequest.getRemarks());
+
+            LOGGER.info("xxx"+jsonObject.toString());
         } catch (IOException e) {
             LOGGER.error("Transaction Failed {}", e.getLocalizedMessage());
             return ResponseEntity.status(500).body(new ApiResponse(false,"Internal Server Error"));
         }
 
-        assert jsonObject != null;
-        int responseCode = Integer.parseInt(jsonObject.getString("ResponseCode"));
-        if (responseCode != 0)
-        {
-            return ResponseEntity.status(500).body(new ApiResponse(false,"An Error Occurred Try Again"));
+        try{
+            int responseCode = Integer.parseInt(jsonObject.getString("ResponseCode"));
+            LOGGER.info("Response Code -> " + responseCode);
+
+            if (responseCode != 0)
+            {
+                return ResponseEntity.status(500).body(new ApiResponse(false,"An Error Occurred Try Again"));
+            }
+
+        }catch (Exception e){
+            B2CUnsuccessfulResponse b2CUnsuccessfulResponse = null;
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
+                b2CUnsuccessfulResponse = (B2CUnsuccessfulResponse) objectMapper.readValue(jsonObject.toString(), B2CUnsuccessfulResponse.class);
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+            assert b2CUnsuccessfulResponse != null;
+            return ResponseEntity.ok(b2CUnsuccessfulResponse);
         }
 
         B2CModel b2CModel = new B2CModel();
@@ -92,53 +109,50 @@ public class B2CController
         b2CModel.setPhoneNumber(b2cRequest.getPhoneNumber());
         b2CModel.setRemarks(b2cRequest.getRemarks());
         b2CModel.setTransactionComplete((short) 0);
-        b2CModel.setConversationID(jsonObject.getString("ConversationId"));
-        b2CModel.setOriginatorConversationID(jsonObject.getString("OriginatorConversationId"));
+        b2CModel.setConversationID(jsonObject.getString("ConversationID"));
+        b2CModel.setOriginatorConversationID(jsonObject.getString("OriginatorConversationID"));
         b2CModel.setUser(user);
+        b2CModel.setTransactionResponse("Initiated");
+        b2CModel.setCreatedAt(new Date().toInstant());
 
         b2CRepository.save(b2CModel);
         return ResponseEntity.status(200).body(jsonObject.toMap());
-
-//        while (true)
-//        {
-//            if (transactionComplete)
-//            {
-//                if (result.containsKey(200))
-//                {
-//                    B2CModel b2CModel = new B2CModel();
-//                    b2CModel.setAmount(b2cRequest.getAmount());
-//                    b2CModel.setCommandID(String.valueOf(b2cRequest.getCommandID()));
-//                    b2CModel.setPhoneNumber(b2cRequest.getPhoneNumber());
-//                    b2CModel.setRemarks(b2cRequest.getRemarks());
-//                    b2CModel.setTransactionComplete((short) 1);
-//                    b2CModel.setConversationID(jsonObject.getString("ConversationId"));
-//                    b2CModel.setOriginatorConversationID(jsonObject.getString("OriginatorConversationId"));
-//                    b2CModel.setUser(user);
-//
-//                    b2CRepository.save(b2CModel);
-//                    transactionComplete=false;
-//                    return ResponseEntity.status(200).body(new ApiResponse(true,result.get(200)));
-//                }else {
-//                    transactionComplete = false;
-//                    LOGGER.error("Transaction Failed {}", result.get(500));
-//                    return ResponseEntity.status(500).body(new ApiResponse(false,
-//                            "Transaction Failed -> "+result.get(500)));
-//                }
-//            }
-//        }
     }
 
     @PostMapping("/result")
-    public void result(@RequestBody String jsonString)
+    public String result(@RequestBody B2CSuccessResponse b2CSuccessResponse)
     {
-        transactionComplete = true;
-        result = b2CTransaction.requestSuccess(jsonString);
+        try {
+            LOGGER.info(" In result"+new ObjectMapper().writeValueAsString(b2CSuccessResponse));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        String conversationID = b2CSuccessResponse.getResult().getConversationID();
+        B2CModel b2CModel = b2CRepository.findByConversationID(conversationID).orElse(null);
+        assert b2CModel != null;
+
+        if (!b2CSuccessResponse.getResult().getResultCode().equals("0")){
+            try {
+                assert b2CModel != null;
+                b2CModel.setTransactionResponse(new ObjectMapper().writeValueAsString(b2CSuccessResponse));
+                b2CRepository.save(b2CModel);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }else {
+            assert b2CModel != null;
+            b2CModel.setTransactionComplete((short) 1);
+            b2CModel.setTransactionResponse("Transaction Complete");
+            b2CRepository.save(b2CModel);
+        }
+
+        return "body";
     }
 
     @PostMapping("/timeout")
     public void timeout()
     {
-        transactionComplete = true;
-        result.put(500, "Timed Out! Try Again");
+
     }
 }

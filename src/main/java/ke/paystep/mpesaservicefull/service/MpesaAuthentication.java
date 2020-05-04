@@ -66,8 +66,6 @@ public class MpesaAuthentication
                 .build();
 
         Response response = client.newCall(request).execute();
-        LOGGER.info(response.toString());
-
         return new JSONObject(response.body().string());
     }
 }

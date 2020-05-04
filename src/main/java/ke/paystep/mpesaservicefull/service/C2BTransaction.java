@@ -1,6 +1,8 @@
 package ke.paystep.mpesaservicefull.service;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import ke.paystep.mpesaservicefull.payload.StkPushQueryRequest;
+import ke.paystep.mpesaservicefull.payload.StkPushRequest;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
@@ -130,13 +132,13 @@ public class C2BTransaction {
 
     }
 
-    public JSONObject payment(String amount, String phoneNumber, String accountName, String transactionDesc) throws IOException {
+    public JSONObject payment(StkPushRequest stkPushQueryRequest) throws IOException {
 
         String url;
 
         if (appMode.equals("development"))
         {
-            url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
+            url = "http://localhost:8600/mpesa/stkpush/v1/processrequest";
         }else{
             url = "https://live.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
         }
@@ -154,15 +156,15 @@ public class C2BTransaction {
         jsonObject.put("Password", encodedPassword);
         jsonObject.put("Timestamp", timeStamp);
         jsonObject.put("TransactionType", "CustomerPayBillOnQueueTimeOutURLlineQueueTimeOutURL");
-        jsonObject.put("Amount", amount);
-        jsonObject.put("PhoneNumber", phoneNumber);
-        jsonObject.put("PartyA", phoneNumber);
+        jsonObject.put("Amount", stkPushQueryRequest.getAmount());
+        jsonObject.put("PhoneNumber", stkPushQueryRequest.getPhoneNumber());
+        jsonObject.put("PartyA", stkPushQueryRequest.getPhoneNumber());
         jsonObject.put("PartyB", business_short_code);
-        jsonObject.put("CallBackURL", callBackUrl);
-        jsonObject.put("AccountReference", accountName); //Name of the company/owner of the paybill that will be
+        jsonObject.put("CallBackURL", stkPushQueryRequest.getConfirmationUrl());
+        jsonObject.put("AccountReference", stkPushQueryRequest.getAccountName()); //Name of the company/owner of the paybill that will be
         // displayed to the client
         jsonObject.put("QueueTimeOutURL", queueTimeOutURL);
-        jsonObject.put("TransactionDesc", transactionDesc);
+        jsonObject.put("TransactionDesc", stkPushQueryRequest.getTransactionDesc());
         jsonArray.put(jsonObject);
 
         String requestJson = jsonArray.toString().replaceAll("[\\[\\]]", "");

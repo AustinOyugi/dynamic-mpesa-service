@@ -2,10 +2,18 @@ package ke.paystep.mpesaservicefull.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import ke.paystep.mpesaservicefull.model.audit.DateAudit;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "STK_Push", uniqueConstraints = {
         @UniqueConstraint(columnNames = {
@@ -37,71 +45,7 @@ public class StkPushModel extends DateAudit
     private short transactionComplete;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
     private Users user;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getMerchantRequestID() {
-        return merchantRequestID;
-    }
-
-    public void setMerchantRequestID(String merchantRequestID) {
-        this.merchantRequestID = merchantRequestID;
-    }
-
-    public String getCheckoutRequestID() {
-        return checkoutRequestID;
-    }
-
-    public void setCheckoutRequestID(String checkoutRequestID) {
-        this.checkoutRequestID = checkoutRequestID;
-    }
-
-    public String getAmount() {
-        return amount;
-    }
-
-    public void setAmount(String amount) {
-        this.amount = amount;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public Users getUser() {
-        return user;
-    }
-
-    public void setUser(Users user) {
-        this.user = user;
-    }
-
-    public short getTransactionComplete() {
-        return transactionComplete;
-    }
-
-    public void setTransactionComplete(short transactionComplete) {
-        this.transactionComplete = transactionComplete;
-    }
-
-    public String getConfirmationUrl() {
-        return confirmationUrl;
-    }
-
-    public void setConfirmationUrl(String confirmationUrl) {
-        this.confirmationUrl = confirmationUrl;
-    }
 }

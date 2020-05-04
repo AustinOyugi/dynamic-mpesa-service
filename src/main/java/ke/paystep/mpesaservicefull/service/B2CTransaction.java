@@ -53,7 +53,7 @@ public class B2CTransaction
 
         if (appMode.equals("development"))
         {
-            url = "https://sandbox.safaricom.co.ke/mpesa/b2c/v1/paymentrequest";
+            url = "http://localhost:8600/mpesa/b2c/v1/paymentrequest";
         }else{
             url = "https://live.safaricom.co.ke/mpesa/b2c/v1/paymentrequest";
         }

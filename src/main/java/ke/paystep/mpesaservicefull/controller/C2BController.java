@@ -1,5 +1,6 @@
 package ke.paystep.mpesaservicefull.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponses;
 import ke.paystep.mpesaservicefull.exception.ResourceNotFoundException;
@@ -7,17 +8,13 @@ import ke.paystep.mpesaservicefull.helpers.UrlValidator;
 import ke.paystep.mpesaservicefull.model.C2BModel;
 import ke.paystep.mpesaservicefull.model.StkPushModel;
 import ke.paystep.mpesaservicefull.model.Users;
-import ke.paystep.mpesaservicefull.payload.ApiResponse;
-import ke.paystep.mpesaservicefull.payload.C2BRequest;
-import ke.paystep.mpesaservicefull.payload.StkPushQueryRequest;
-import ke.paystep.mpesaservicefull.payload.StkPushRequest;
+import ke.paystep.mpesaservicefull.payload.*;
 import ke.paystep.mpesaservicefull.repository.C2BRespository;
 import ke.paystep.mpesaservicefull.repository.StkPushRepository;
 import ke.paystep.mpesaservicefull.repository.UserRepository;
 import ke.paystep.mpesaservicefull.security.CurrentUser;
 import ke.paystep.mpesaservicefull.security.UserPrincipal;
 import ke.paystep.mpesaservicefull.service.C2BTransaction;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +27,8 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -96,19 +95,18 @@ public class C2BController
             @io.swagger.annotations.ApiResponse(code = 400, message = "Bad Request")
     })
     @PostMapping("/stkpush/initiate")
-    public ResponseEntity<?> stkPushInitiate(@CurrentUser UserPrincipal userPrincipal,
-                                             @Valid @RequestBody StkPushRequest stkPushRequest)
+    public ResponseEntity<?> stkPushInitiate(@CurrentUser UserPrincipal userPrincipal ,
+                                             @RequestBody StkPushRequest stkPushRequest)
     {
-        if (!UrlValidator.urlValidator(stkPushRequest.getConfirmationUrl()))
-        {
-            return ResponseEntity.status(400).body(new ApiResponse(false,"Enter a Valid URL"));
-        }
+//        if (!UrlValidator.urlValidator(stkPushRequest.getConfirmationUrl()))
+//        {
+//            return ResponseEntity.status(400).body(new ApiResponse(false,"Enter a Valid URL"));
+//        }
 
         JSONObject jsonObject;
 
         try {
-            jsonObject = c2BTransaction.payment(stkPushRequest.getAmount(),stkPushRequest.getPhoneNumber(),
-                    stkPushRequest.getAccountName(),stkPushRequest.getTransactionDesc());
+            jsonObject = c2BTransaction.payment(stkPushRequest);
             
         } catch (IOException e) {
             LOGGER.error("Transaction Failed {}", e.getLocalizedMessage());
@@ -130,21 +128,23 @@ public class C2BController
         
         if (responseCode != 0)
         {
+            LOGGER.error(jsonObject.toString());
             return ResponseEntity.status(500).body(new ApiResponse(false,"An Error Occurred, Try Again"));
         }
 
         StkPushModel stkPushModel = new StkPushModel();
         assert userPrincipal != null;
-        stkPushModel.setUser(userRepository.findById(userPrincipal.getId()).orElse(null));
+        stkPushModel.setUser(userRepository.findById(Long.parseLong("1")).orElse(null));
         stkPushModel.setAmount(stkPushRequest.getAmount());
         stkPushModel.setCheckoutRequestID(jsonObject.getString("CheckoutRequestID"));
         stkPushModel.setMerchantRequestID(jsonObject.getString("MerchantRequestID"));
         stkPushModel.setPhoneNumber(stkPushRequest.getPhoneNumber());
         stkPushModel.setTransactionComplete((short) 0);
         stkPushModel.setConfirmationUrl(stkPushRequest.getConfirmationUrl());
+        stkPushModel.setCreatedAt(new Date().toInstant());
         stkPushRepository.save(stkPushModel);
 
-        return ResponseEntity.status(200).body(new ApiResponse(true, "Transaction Initiated Successfully -> "));
+        return ResponseEntity.status(200).body(jsonObject.toString());
     }
 
     @PostMapping("/stkpush/result")
@@ -259,10 +259,11 @@ public class C2BController
         c2BModel.setUser(user);
 
         c2BRespository.save(c2BModel);
-        return ResponseEntity.status(200).body(new ApiResponse(true,"Transaction Initiated Successfully"));
+        return ResponseEntity.status(200).body(jsonObject.toString());
     }
 
     @PostMapping(value = "/url/validation")
+
     public ResponseEntity<?> validationRequest(@RequestBody String json) throws IOException {
         Map<String, Object> jsonToMap = new ObjectMapper().readValue(json, Map.class);
         String transAmount = (String) jsonToMap.get("TransAmount");
@@ -275,9 +276,36 @@ public class C2BController
         return ResponseEntity.status(200).body(jsonObject.toMap());
     }
 
-    @PostMapping(value = "/url/confirmation")
-    public void confirmation()
+    @PostMapping(value = "/stkpush/callback")
+    public void confirmation(@RequestBody HashMap<String, Object> jsonStringResponse)
     {
+        JSONObject jsonObject = new JSONObject(jsonStringResponse);
+        JSONObject jsonChildObject = (JSONObject) jsonObject.get("Body");
+        STKPushCallback result = null;
 
+        try {
+           result = new ObjectMapper().readValue(jsonChildObject.toString(),
+                    STKPushCallback.class);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+
+        assert result != null;
+
+        String resultCode = result.getResult().getResultCode();
+        String checkoutRequestID = result.getResult().getCheckoutRequestID();
+
+        StkPushModel stkPushModel = stkPushRepository.getByCheckoutRequestID(checkoutRequestID).orElse(null);
+        assert stkPushModel !=  null;
+
+        if (!resultCode.equals("0"))
+        {
+            stkPushModel.setTransactionComplete((short) 2);
+        }else{
+            stkPushModel.setTransactionComplete((short) 1);
+        }
+
+        stkPushModel.setUpdatedAt(new Date().toInstant());
+        stkPushRepository.save(stkPushModel);
     }
 }

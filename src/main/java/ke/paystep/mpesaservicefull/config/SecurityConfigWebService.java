@@ -107,10 +107,15 @@ public class SecurityConfigWebService extends WebSecurityConfigurerAdapter
                 .permitAll()
                 .antMatchers("/api/user/checkUsernameAvailability", "/api/user/checkEmailAvailability")
                 .permitAll()
-                .antMatchers(HttpMethod.GET,"/api/mpesa/**","/api/users/**" ,"/v1/**")
+                .antMatchers(HttpMethod.POST,"/v1/payment/mpesa/b2c/result","/v1/payment/mpesa/c2b/stkpush/callback" )
+                .permitAll()
+                .antMatchers(HttpMethod.GET,"/api/mpesa/**","/api/users/**")
+                //.antMatchers(HttpMethod.GET,"/api/mpesa/**","/api/users/**" ,"/v1/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated();
+
+        //http.authorizeRequests().antMatchers("/**").permitAll().anyRequest().authenticated();
 
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     }

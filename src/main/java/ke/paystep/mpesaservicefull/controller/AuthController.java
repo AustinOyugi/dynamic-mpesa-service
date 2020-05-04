@@ -30,6 +30,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.Collections;
+import java.util.Date;
 
 /**
  * Created by Austin Oyugi on 19/8/2019.
@@ -101,6 +102,8 @@ public class AuthController
                 signUpRequest.getUserName(),signUpRequest.getAccountType(), signUpRequest.getEmailAddress(),
                 signUpRequest.getCompanyName(),signUpRequest.getCountry(),signUpRequest.getMobileNumber(),
                 signUpRequest.getPassword(), (short) 1);
+
+        user.setCreatedAt(new Date().toInstant());
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 

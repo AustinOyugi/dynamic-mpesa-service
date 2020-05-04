@@ -1,61 +1,37 @@
 package ke.paystep.mpesaservicefull.payload;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.validation.constraints.NotNull;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class StkPushRequest
 {
     @NotNull
+    @JsonProperty("Amount")
     private String amount;
 
     @NotNull
+    @JsonProperty("PhoneNumber")
     private String phoneNumber;
 
     @NotNull
+    @JsonProperty("AccountName")
     private String accountName;
 
     @NotNull
+    @JsonProperty("ConfirmationUrl")
     private String confirmationUrl;
 
     @NotNull
+    @JsonProperty("TransactionDesc")
     private String transactionDesc;
 
-    public String getAmount() {
-        return amount;
-    }
-
-    public void setAmount(String amount) {
-        this.amount = amount;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getAccountName() {
-        return accountName;
-    }
-
-    public void setAccountName(String accountName) {
-        this.accountName = accountName;
-    }
-
-    public String getTransactionDesc() {
-        return transactionDesc;
-    }
-
-    public void setTransactionDesc(String transactionDesc) {
-        this.transactionDesc = transactionDesc;
-    }
-
-    public String getConfirmationUrl() {
-        return confirmationUrl;
-    }
-
-    public void setConfirmationUrl(String confirmationUrl) {
-        this.confirmationUrl = confirmationUrl;
-    }
 }
