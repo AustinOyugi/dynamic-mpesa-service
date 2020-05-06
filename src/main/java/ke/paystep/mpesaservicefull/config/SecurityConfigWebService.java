@@ -107,7 +107,10 @@ public class SecurityConfigWebService extends WebSecurityConfigurerAdapter
                 .permitAll()
                 .antMatchers("/api/user/checkUsernameAvailability", "/api/user/checkEmailAvailability")
                 .permitAll()
-                .antMatchers(HttpMethod.POST,"/v1/payment/mpesa/b2c/result","/v1/payment/mpesa/c2b/stkpush/callback" )
+                .antMatchers(HttpMethod.POST,"/v1/payment/mpesa/b2c/result",
+                        "/v1/payment/mpesa/c2b/stkpush/callback"
+                ,"/v1/payment/mpesa/c2b/validation",
+                        "/v1/payment/mpesa/c2b/confirmation")
                 .permitAll()
                 .antMatchers(HttpMethod.GET,"/api/mpesa/**","/api/users/**")
                 //.antMatchers(HttpMethod.GET,"/api/mpesa/**","/api/users/**" ,"/v1/**")

@@ -1,5 +1,6 @@
 package ke.paystep.mpesaservicefull.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponses;
@@ -98,10 +99,10 @@ public class C2BController
     public ResponseEntity<?> stkPushInitiate(@CurrentUser UserPrincipal userPrincipal ,
                                              @RequestBody StkPushRequest stkPushRequest)
     {
-//        if (!UrlValidator.urlValidator(stkPushRequest.getConfirmationUrl()))
-//        {
-//            return ResponseEntity.status(400).body(new ApiResponse(false,"Enter a Valid URL"));
-//        }
+        if (!UrlValidator.urlValidator(stkPushRequest.getConfirmationUrl()))
+        {
+            return ResponseEntity.status(400).body(new ApiResponse(false,"Enter a Valid URL"));
+        }
 
         JSONObject jsonObject;
 
@@ -134,7 +135,8 @@ public class C2BController
 
         StkPushModel stkPushModel = new StkPushModel();
         assert userPrincipal != null;
-        stkPushModel.setUser(userRepository.findById(Long.parseLong("1")).orElse(null));
+        stkPushModel.setUser(userRepository
+                .findById(Long.parseLong(String.valueOf(userPrincipal.getId()))).orElse(null));
         stkPushModel.setAmount(stkPushRequest.getAmount());
         stkPushModel.setCheckoutRequestID(jsonObject.getString("CheckoutRequestID"));
         stkPushModel.setMerchantRequestID(jsonObject.getString("MerchantRequestID"));
@@ -222,12 +224,12 @@ public class C2BController
             @io.swagger.annotations.ApiResponse(code = 500, message = "Internal Server Error")
     })
     @PostMapping("/initiate")
-    public ResponseEntity<?> initiate(@CurrentUser UserPrincipal currentUser, @Valid @RequestBody C2BRequest c2BRequest)
+    public ResponseEntity<?> initiate(@RequestBody C2BRequest c2BRequest)
     {
-        Users user = userRepository.findById(currentUser.getId()).orElse(null);
+        Users user = userRepository.findById(Long.parseLong("1")).orElse(null);
         if (user == null)
         {
-            return ResponseEntity.status(404).body(new ResourceNotFoundException("User", "Id", currentUser.getId()));
+            return ResponseEntity.status(404).body(new ResourceNotFoundException("User", "Id", Long.parseLong("1")));
         }
 
         JSONObject jsonObject;
@@ -241,39 +243,23 @@ public class C2BController
         }
 
         assert jsonObject != null;
-        String responseDescription = jsonObject.getString("ResponseDescription");
-
-        if (responseDescription.equals("The service request has failed"))
-        {
+        if (!jsonObject.getString("ResponseCode").equals("0")){
             return ResponseEntity.status(500).body(new ApiResponse(false,"An Error Occurred Try Again"));
         }
 
         C2BModel c2BModel = new C2BModel();
         c2BModel.setAmount(c2BRequest.getAmount());
         c2BModel.setCommandID(String.valueOf(c2BRequest.getCommandID()));
-        c2BModel.setConversationID(jsonObject.getString("ConversationId"));
+        c2BModel.setConversationID(jsonObject.getString("ConversationID"));
         c2BModel.setLipaNaMpesaShortcode(c2BRequest.getLipaNaMpesaShortcode());
-        c2BModel.setOriginatorCoversationID(jsonObject.getString("OriginatorConversationId"));
+        c2BModel.setOriginatorCoversationID(jsonObject.getString("OriginatorConversationID"));
         c2BModel.setPhoneNumber(c2BRequest.getPhoneNumber());
         c2BModel.setTransactionComplete((short) 0);
         c2BModel.setUser(user);
+        c2BModel.setCreatedAt(new Date().toInstant());
 
         c2BRespository.save(c2BModel);
         return ResponseEntity.status(200).body(jsonObject.toString());
-    }
-
-    @PostMapping(value = "/url/validation")
-
-    public ResponseEntity<?> validationRequest(@RequestBody String json) throws IOException {
-        Map<String, Object> jsonToMap = new ObjectMapper().readValue(json, Map.class);
-        String transAmount = (String) jsonToMap.get("TransAmount");
-
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("ResultCode", 0);
-        jsonObject.put("ResultDesc","Accepted");
-
-        //Get back to this
-        return ResponseEntity.status(200).body(jsonObject.toMap());
     }
 
     @PostMapping(value = "/stkpush/callback")
@@ -307,5 +293,34 @@ public class C2BController
 
         stkPushModel.setUpdatedAt(new Date().toInstant());
         stkPushRepository.save(stkPushModel);
+    }
+
+    @PostMapping(value = "/validation")
+    public ResponseEntity<?> validationRequest(@RequestBody Map<String, Object> account){
+
+        try {
+            LOGGER.info(new ObjectMapper().writeValueAsString(account));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("ResultCode", 0);
+        jsonObject.put("ResultDesc","Accepted");
+
+        //Get back to this
+        return ResponseEntity.status(200).body(jsonObject.toMap());
+    }
+
+    @PostMapping(value = "/confirmation")
+    public ResponseEntity<?> validationConfirmationResponse(@RequestBody Map<String, Object> account){
+        //isuue
+        C2BModel c2BModel = c2BRespository.getByTransID((String) account.get("TransID")).orElse(null);
+        assert c2BModel != null;
+        c2BModel.setTransactionComplete((short) 1);
+        c2BModel.setUpdatedAt(new Date().toInstant());
+        c2BRespository.save(c2BModel);
+
+        return ResponseEntity.ok("body");
     }
 }

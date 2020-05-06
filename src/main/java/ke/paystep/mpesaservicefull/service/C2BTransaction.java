@@ -51,7 +51,7 @@ public class C2BTransaction {
 
         if (appMode.equals("development"))
         {
-            url = "https://sandbox.safaricom.co.ke/mpesa/c2b/v1/simulate";
+            url = "http://localhost:8600/mpesa/c2b/v1/simulate";
         }else{
             url = "https://live.safaricom.co.ke/mpesa/c2b/v1/simulate";
         }
