@@ -75,7 +75,7 @@ public class B2CController
             jsonObject = b2CTransaction.request(String.valueOf(b2cRequest.getCommandID()), b2cRequest.getAmount(),
                     b2cRequest.getPhoneNumber(),b2cRequest.getRemarks());
 
-            LOGGER.info("xxx"+jsonObject.toString());
+            LOGGER.info(jsonObject.toString());
         } catch (IOException e) {
             LOGGER.error("Transaction Failed {}", e.getLocalizedMessage());
             return ResponseEntity.status(500).body(new ApiResponse(false,"Internal Server Error"));
@@ -91,16 +91,7 @@ public class B2CController
             }
 
         }catch (Exception e){
-            B2CUnsuccessfulResponse b2CUnsuccessfulResponse = null;
-            try {
-                ObjectMapper objectMapper = new ObjectMapper();
-                objectMapper.disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
-                b2CUnsuccessfulResponse = (B2CUnsuccessfulResponse) objectMapper.readValue(jsonObject.toString(), B2CUnsuccessfulResponse.class);
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
-            assert b2CUnsuccessfulResponse != null;
-            return ResponseEntity.ok(b2CUnsuccessfulResponse);
+           e.printStackTrace();
         }
 
         B2CModel b2CModel = new B2CModel();
@@ -134,14 +125,12 @@ public class B2CController
 
         if (!b2CSuccessResponse.getResult().getResultCode().equals("0")){
             try {
-                assert b2CModel != null;
                 b2CModel.setTransactionResponse(new ObjectMapper().writeValueAsString(b2CSuccessResponse));
                 b2CRepository.save(b2CModel);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
         }else {
-            assert b2CModel != null;
             b2CModel.setTransactionComplete((short) 1);
             b2CModel.setTransactionResponse("Transaction Complete");
             b2CRepository.save(b2CModel);
