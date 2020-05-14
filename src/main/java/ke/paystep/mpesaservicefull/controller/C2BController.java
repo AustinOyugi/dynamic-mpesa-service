@@ -154,10 +154,10 @@ public class C2BController {
     public void stkPushResult(@RequestBody String jsonString) {
         JSONObject jsonObject = new JSONObject(jsonString);
         JSONObject jsonChildObject = (JSONObject) jsonObject.get("Body");
-        JSONObject jsonFirstChild = (JSONObject) jsonObject.get("stkCallback");
+        JSONObject jsonFirstChild = (JSONObject) jsonChildObject.get("stkCallback");
 
         int resultCode = Integer.parseInt(jsonFirstChild.getString("ResultCode"));
-        String checkoutRequestID = jsonChildObject.getString("CheckoutRequestID");
+        String checkoutRequestID = jsonFirstChild.getString("CheckoutRequestID");
 
         StkPushModel stkPushModel = stkPushRepository.getByCheckoutRequestID(checkoutRequestID).orElse(null);
         assert stkPushModel != null;
@@ -165,6 +165,7 @@ public class C2BController {
 
         if (resultCode == 0) {
             stkPushModel.setTransactionComplete((short) 1);
+            stkPushModel.setUpdatedAt(new Date().toInstant());
             stkPushRepository.save(stkPushModel);
         }
 
