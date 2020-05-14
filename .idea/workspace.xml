@@ -21,8 +21,6 @@
   <component name="ChangeListManager">
     <list default="true" id="08254ba1-7090-4f93-a6d2-b11815fb2cca" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ke/paystep/mpesaservicefull/controller/C2BController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ke/paystep/mpesaservicefull/controller/C2BController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ke/paystep/mpesaservicefull/service/MpesaAuthentication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ke/paystep/mpesaservicefull/service/MpesaAuthentication.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
